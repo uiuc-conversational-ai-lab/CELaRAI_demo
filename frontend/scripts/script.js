@@ -251,7 +251,7 @@ async function handleGenerate() {
         formData.append('config', JSON.stringify(config));
         
         // Call the backend API
-        const response = await fetch('http://convai-srv-01.cs.illinois.edu:5001/process', {
+        const response = await fetch('https://celarai-demo.onrender.com:5001/process', {
             method: 'POST',
             body: formData,
             // Don't set Content-Type header - let browser set it with boundary for FormData
