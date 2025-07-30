@@ -82,6 +82,10 @@ def write_config(additional_instructions="Generate questions to test an undergra
         yaml.dump(config, f, default_flow_style=False)
     print("Configuration file written successfully.")
 
+@app.route('/')
+def index():
+    return jsonify({"message": "Welcome to the question generation API!"})
+
 @app.route('/process', methods=['POST'])
 def process_file():
     # Check if files are present
