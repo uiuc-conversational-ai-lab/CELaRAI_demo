@@ -42,12 +42,12 @@ def write_config(additional_instructions="Generate questions to test an undergra
         "pipeline": {
             "ingestion": {
                 "run": True,
-                "source_documents_dir": "backend/data/raw",
-                "output_dir" : "backend/data/processed",
+                "source_documents_dir": f"{(os.path.abspath(__file__))}/data/raw",
+                "output_dir" : f"{(os.path.abspath(__file__))}/data/processed",
             },
             "upload_ingest_to_hub": {
                 "run": True,
-                "source_documents_dir": "backend/data/processed",
+                "source_documents_dir": f"{(os.path.abspath(__file__))}/data/processed",
             },
             "summarization": {
                 "run": True,
@@ -77,8 +77,8 @@ def write_config(additional_instructions="Generate questions to test an undergra
             }
         }
     }
-    print(f"Writing config to {'backend/config.yaml'}")
-    with open('backend/config.yaml', "w") as f:
+    print(f"Writing config to {f'{(os.path.abspath(__file__))}/config.yaml'}")
+    with open(f'{(os.path.abspath(__file__))}/config.yaml', "w") as f:
         yaml.dump(config, f, default_flow_style=False)
     print("Configuration file written successfully.")
 
@@ -113,14 +113,14 @@ def process_file():
     custom_instructions = config.get('customInstructions', 'Generate questions to test an undergraduate student')
     
     # Prepare data directory
-    data_dir = 'backend/data/raw'
+    data_dir = f'{(os.path.abspath(__file__))}/data/raw'
     # Clear the directory if it exists, else create it
     if os.path.exists(data_dir):
         shutil.rmtree(data_dir)
     os.makedirs(data_dir, exist_ok=True)
 
     # Clear processed data directory
-    processed_data_dir = 'backend/data/processed'
+    processed_data_dir = f'{(os.path.abspath(__file__))}/data/processed'
     if os.path.exists(processed_data_dir):
         shutil.rmtree(processed_data_dir)
     os.makedirs(processed_data_dir, exist_ok=True)
@@ -145,7 +145,7 @@ def process_file():
     try:
         # Run the processing script
         print("Starting question generation pipeline...")
-        result = os.system('bash backend/run.sh')
+        result = os.system(f'bash {(os.path.abspath(__file__))}/run.sh')
         
         if result != 0:
             return jsonify({'error': 'Processing pipeline failed'}), 500

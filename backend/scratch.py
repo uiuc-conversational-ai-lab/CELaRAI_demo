@@ -1,3 +1,5 @@
+import json
+
 import requests
 
 url = "https://celarai-demo.onrender.com/process"
@@ -9,7 +11,7 @@ config = {
     'difficulty': 'medium',
     'customInstructions': 'Generate 5 questions'
 }
-data = {'config': config}
+data = {'config': json.dumps(config)}
 
 response = requests.post(url, files=files, data=data)
 
