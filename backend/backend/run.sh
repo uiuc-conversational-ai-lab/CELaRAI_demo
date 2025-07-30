@@ -1,0 +1,1 @@
+yourbench run --config backend/config.yaml

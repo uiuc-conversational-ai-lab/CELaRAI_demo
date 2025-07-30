@@ -1,0 +1,1 @@
+once upon a time there lived near a forest a man and his wife and two girls ; one girl was the daughter of the man , and the other the daughter of his wife ; and the man 's daughter was good and beautiful , but the woman 's daughter was cross and ugly . however , her mother did not know that , but thought her the most bewitching maiden that ever was seen .

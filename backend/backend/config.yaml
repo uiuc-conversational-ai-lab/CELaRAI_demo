@@ -1,0 +1,49 @@
+hf_configuration:
+  concat_if_exist: false
+  hf_dataset_name: celarai_demo
+  hf_organization: Thomas-X-Yang
+  private: true
+  token: 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
+model_list:
+- api_key: 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
+  base_url: https://integrate.api.nvidia.com/v1
+  max_concurrent_requests: 8
+  model_name: qwen/qwq-32b
+pipeline:
+  chunking:
+    chunking_configuration:
+      chunking_mode: fast_chunking
+      encoding_name: cl100k_base
+      l_max_tokens: 64
+      token_overlap: 0
+    run: true
+  ingestion:
+    output_dir: backend/data/processed
+    run: true
+    source_documents_dir: backend/data/raw
+  lighteval:
+    run: true
+  multi_hop_question_generation:
+    additional_instructions: 'Question types: causal (why did this happen), analytical
+      (critical thinking), factual (knowledge recall).
+
+      Difficulty (out of 5): 5.
+
+      Custom instructions: '
+    run: true
+  single_shot_question_generation:
+    additional_instructions: 'Question types: causal (why did this happen), analytical
+      (critical thinking), factual (knowledge recall).
+
+      Difficulty (out of 5): 5.
+
+      Custom instructions: '
+    run: true
+  summarization:
+    encoding_name: cl100k_base
+    max_tokens: 16384
+    run: true
+    token_overlap: 128
+  upload_ingest_to_hub:
+    run: true
+    source_documents_dir: backend/data/processed
