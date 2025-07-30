@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Upload & Question Generation</title>
+    <link rel="stylesheet" href="styles/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Document Upload Section -->
+        <section class="upload-section">
+            <h2>📄 Document Upload & Question Generation</h2>
+            
+            <div class="upload-area">
+                <h3>Upload Documents</h3>
+                <div class="drop-zone" id="dropZone">
+                    <div class="upload-icon">📁</div>
+                    <p>Drop File Here</p>
+                    <p class="or-text">- or -</p>
+                    <button class="upload-btn" id="uploadBtn">Click to Upload</button>
+                    <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt" style="display: none;">
+                </div>
+            </div>
+
+            <div class="preview-section">
+                <h3>📊 Sample Question Preview</h3>
+                <div class="preview-content">
+                    <p>Select question types to see sample questions here.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Question Configuration Section -->
+        <section class="config-section">
+            <h2>⚙️ Question Configuration</h2>
+            
+            <div class="config-group">
+                <h3>Question Types</h3>
+                <p class="subtitle">Select the types of questions you want to generate</p>
+                
+                <div class="checkbox-grid">
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="character (who, how)">
+                        <span class="checkmark"></span>
+                        Character (Who, How)
+                    </label>
+                    
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="setting (where, when)">
+                        <span class="checkmark"></span>
+                        Setting (Where, When)
+                    </label>
+                    
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="action (what happened next)">
+                        <span class="checkmark"></span>
+                        Action (What happened next?)
+                    </label>
+                    
+                    <label class="checkbox-item checked">
+                        <input type="checkbox" name="questionType" value="causal (why did this happen)" checked>
+                        <span class="checkmark"></span>
+                        Causal Relationship (Why did this happen?)
+                    </label>
+                    
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="outcome (what happened in the end)">
+                        <span class="checkmark"></span>
+                        Outcome Resolution (What happened in the end?)
+                    </label>
+                    
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="feeling (how did the character feel)">
+                        <span class="checkmark"></span>
+                        Feeling (How did the character feel?)
+                    </label>
+                    
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="prediction (simple, relatable predictions)">
+                        <span class="checkmark"></span>
+                        Prediction (Simple, relatable predictions)
+                    </label>
+                    
+                    <label class="checkbox-item checked">
+                        <input type="checkbox" name="questionType" value="analytical (critical thinking)" checked>
+                        <span class="checkmark"></span>
+                        Analytical (Critical thinking)
+                    </label>
+                    
+                    <label class="checkbox-item checked">
+                        <input type="checkbox" name="questionType" value="factual (knowledge recall)" checked>
+                        <span class="checkmark"></span>
+                        Factual (Knowledge recall)
+                    </label>
+                    
+                    <label class="checkbox-item">
+                        <input type="checkbox" name="questionType" value="comparative (compare and contrast)">
+                        <span class="checkmark"></span>
+                        Comparative (Compare and contrast)
+                    </label>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <h3>Difficulty Level</h3>
+                <p class="subtitle">1 = Elementary, 5 = Undergraduate, 10 = Expert</p>
+                
+                <div class="slider-container">
+                    <input type="range" class="slider" id="difficultySlider" min="1" max="10" value="5">
+                    <div class="slider-labels">
+                        <span>1</span>
+                        <span>5</span>
+                        <span>10</span>
+                    </div>
+                    <div class="slider-value" id="difficultyValue">5</div>
+                </div>
+            </div>
+
+            <div class="config-group">
+                <h3>Custom Instructions</h3>
+                <textarea id="customInstructions" placeholder="Generate questions to test an undergraduate student's understanding" rows="3"></textarea>
+            </div>
+
+            <button class="generate-btn" id="generateBtn">
+                🔄 Generate Questions
+            </button>
+        </section>
+    </div>
+
+    <script src="scripts/script.js"></script>
+</body>
+</html>
