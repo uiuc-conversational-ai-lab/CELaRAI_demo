@@ -1,6 +1,6 @@
 import requests
 
-url = "https://celarai-demo.onrender.com:5001/process"
+url = "https://celarai-demo.onrender.com/process"
 
 # Example data
 files = {'files': open('backend/scratch.txt', 'rb')}  # Replace with your file path
