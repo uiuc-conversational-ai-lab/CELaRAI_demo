@@ -1,6 +1,7 @@
 import json
 import os
 import shutil
+import threading
 
 import yaml
 from datasets import load_dataset
@@ -9,6 +10,8 @@ from flask import Flask, jsonify, request
 
 # Load environment variables from .env file
 load_dotenv()
+
+process_lock = threading.Lock()
 
 app = Flask(__name__)
 
@@ -112,88 +115,89 @@ def process_file():
     difficulty = config.get('difficulty', 5)
     custom_instructions = config.get('customInstructions', 'Generate questions to test an undergraduate student')
     
-    # Prepare data directory
-    data_dir = f'{os.path.dirname(os.path.abspath(__file__))}/data/raw'
-    # Clear the directory if it exists, else create it
-    if os.path.exists(data_dir):
-        shutil.rmtree(data_dir)
-    os.makedirs(data_dir, exist_ok=True)
+    with process_lock:
+        # Prepare data directory
+        data_dir = f'{os.path.dirname(os.path.abspath(__file__))}/data/raw'
+        # Clear the directory if it exists, else create it
+        if os.path.exists(data_dir):
+            shutil.rmtree(data_dir)
+        os.makedirs(data_dir, exist_ok=True)
 
-    # Clear processed data directory
-    processed_data_dir = f'{os.path.dirname(os.path.abspath(__file__))}/data/processed'
-    if os.path.exists(processed_data_dir):
-        shutil.rmtree(processed_data_dir)
-    os.makedirs(processed_data_dir, exist_ok=True)
+        # Clear processed data directory
+        processed_data_dir = f'{os.path.dirname(os.path.abspath(__file__))}/data/processed'
+        if os.path.exists(processed_data_dir):
+            shutil.rmtree(processed_data_dir)
+        os.makedirs(processed_data_dir, exist_ok=True)
 
-    # Save all uploaded files to the directory
-    saved_files = []
-    for file in files:
-        if file.filename != '':
-            file_path = os.path.join(data_dir, file.filename)
-            file.save(file_path)
-            saved_files.append(file.filename)
-            print(f"Saved file: {file.filename}")
-    
-    if not saved_files:
-        return jsonify({'error': 'No valid files to process'}), 400
+        # Save all uploaded files to the directory
+        saved_files = []
+        for file in files:
+            if file.filename != '':
+                file_path = os.path.join(data_dir, file.filename)
+                file.save(file_path)
+                saved_files.append(file.filename)
+                print(f"Saved file: {file.filename}")
+        
+        if not saved_files:
+            return jsonify({'error': 'No valid files to process'}), 400
 
-    # Write the configuration file with custom instructions
-    write_config(
-        additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 10; 1 = Elementary; 5 = Undergraduate; 10 = Expert): {difficulty}.\nCustom instructions: {custom_instructions}"
-    )
+        # Write the configuration file with custom instructions
+        write_config(
+            additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 10; 1 = Elementary; 5 = Undergraduate; 10 = Expert): {difficulty}.\nCustom instructions: {custom_instructions}"
+        )
 
-    try:
-        # Run the processing script
-        print("Starting question generation pipeline...")
-        result = os.system(f'bash {os.path.dirname(os.path.abspath(__file__))}/run.sh')
-        
-        if result != 0:
-            return jsonify({'error': 'Processing pipeline failed'}), 500
-        
-        # Load the output from huggingface
-        dataset = load_dataset(f"{os.getenv('HF_ORGANIZATION', '')}/celarai_demo", name="lighteval", split="train")
-        data = dataset.to_pandas().to_dict(orient="records")
-        
-        # Extract questions from the dataset
-        questions = []
-        answers = []
-        for record in data:
-            # Adjust this based on your actual dataset structure
-            if 'question' in record:
-                questions.append(record['question'])
-            elif 'query' in record:
-                questions.append(record['query'])
-            else:
-                # Fallback: use the entire record as a question
-                questions.append(str(record))
-            if 'answer' in record:
-                answers.append(record['answer'])
-            elif 'ground_truth_answer' in record:
-                answers.append(record['ground_truth_answer'])
-            else:
-                answers.append("No answer provided")
-        
-        response = {
-            'success': True,
-            'questions': questions,
-            'answers': answers,
-            'metadata': {
-                'files_processed': saved_files,
-                'question_types': question_types,
-                'difficulty': difficulty,
-                'total_questions': len(questions)
+        try:
+            # Run the processing script
+            print("Starting question generation pipeline...")
+            result = os.system(f'bash {os.path.dirname(os.path.abspath(__file__))}/run.sh')
+            
+            if result != 0:
+                return jsonify({'error': 'Processing pipeline failed'}), 500
+            
+            # Load the output from huggingface
+            dataset = load_dataset(f"{os.getenv('HF_ORGANIZATION', '')}/celarai_demo", name="lighteval", split="train")
+            data = dataset.to_pandas().to_dict(orient="records")
+            
+            # Extract questions from the dataset
+            questions = []
+            answers = []
+            for record in data:
+                # Adjust this based on your actual dataset structure
+                if 'question' in record:
+                    questions.append(record['question'])
+                elif 'query' in record:
+                    questions.append(record['query'])
+                else:
+                    # Fallback: use the entire record as a question
+                    questions.append(str(record))
+                if 'answer' in record:
+                    answers.append(record['answer'])
+                elif 'ground_truth_answer' in record:
+                    answers.append(record['ground_truth_answer'])
+                else:
+                    answers.append("No answer provided")
+            
+            response = {
+                'success': True,
+                'questions': questions,
+                'answers': answers,
+                'metadata': {
+                    'files_processed': saved_files,
+                    'question_types': question_types,
+                    'difficulty': difficulty,
+                    'total_questions': len(questions)
+                }
             }
-        }
-        
-        print(f"Successfully generated {len(questions)} questions")
-        return jsonify(response)
-        
-    except Exception as e:
-        print(f"Error during processing: {str(e)}")
-        return jsonify({
-            'error': f'Processing failed: {str(e)}',
-            'success': False
-        }), 500
+            
+            print(f"Successfully generated {len(questions)} questions")
+            return jsonify(response)
+            
+        except Exception as e:
+            print(f"Error during processing: {str(e)}")
+            return jsonify({
+                'error': f'Processing failed: {str(e)}',
+                'success': False
+            }), 500
     
 
 if __name__ == '__main__':
