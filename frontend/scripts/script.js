@@ -21,23 +21,25 @@ document.addEventListener('DOMContentLoaded', function() {
 
 function initializeEventListeners() {
     // File upload events
-    uploadBtn.addEventListener('click', () => fileInput.click());
+    uploadBtn.addEventListener('click', (e) => {
+        e.stopPropagation(); // Prevent event from bubbling up to drop zone
+        fileInput.click();
+    });
     fileInput.addEventListener('change', handleFileSelect);
     
     // Drag and drop events
     dropZone.addEventListener('dragover', handleDragOver);
     dropZone.addEventListener('drop', handleDrop);
     dropZone.addEventListener('dragleave', handleDragLeave);
-    dropZone.addEventListener('click', () => fileInput.click());
+    dropZone.addEventListener('click', (e) => {
+        // Only trigger file input if the click is not on the upload button
+        if (e.target !== uploadBtn && !uploadBtn.contains(e.target)) {
+            fileInput.click();
+        }
+    });
     
     // Generate button
     generateBtn.addEventListener('click', handleGenerate);
-    
-    // Question type checkboxes
-    const checkboxes = document.querySelectorAll('input[name="questionType"]');
-    checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', updatePreview);
-    });
 }
 
 function initializeSliders() {
@@ -57,28 +59,33 @@ function updateSliderPosition(slider, valueElement) {
 }
 
 function initializeCheckboxes() {
-    const checkboxItems = document.querySelectorAll('.checkbox-item');
-    checkboxItems.forEach(item => {
-        const checkbox = item.querySelector('input[type="checkbox"]');
+    const checkboxes = document.querySelectorAll('input[name="questionType"]');
+    console.log('Found checkboxes:', checkboxes.length); // Debug log
+    
+    checkboxes.forEach((checkbox, index) => {
+        const item = checkbox.closest('.checkbox-item');
+        console.log(`Setting up checkbox ${index}:`, checkbox.value); // Debug log
         
-        item.addEventListener('click', function(e) {
-            if (e.target !== checkbox) {
-                checkbox.checked = !checkbox.checked;
-                checkbox.dispatchEvent(new Event('change'));
-            }
-        });
-        
+        // Add change event listener to each checkbox
         checkbox.addEventListener('change', function() {
+            console.log('Checkbox changed:', this.value, 'checked:', this.checked); // Debug log
+            
+            // Update visual state
             if (this.checked) {
                 item.classList.add('checked');
             } else {
                 item.classList.remove('checked');
             }
+            
+            // Update preview
+            updatePreview();
         });
         
         // Set initial state
         if (checkbox.checked) {
             item.classList.add('checked');
+        } else {
+            item.classList.remove('checked');
         }
     });
 }
@@ -103,6 +110,7 @@ function handleDrop(e) {
 
 function handleFileSelect(e) {
     const files = Array.from(e.target.files);
+    console.log('Files selected:', files); // Debug log
     processFiles(files);
 }
 
@@ -120,6 +128,7 @@ function processFiles(files) {
     }
     
     uploadedFiles = [...uploadedFiles, ...validFiles];
+    console.log('Uploaded files:', uploadedFiles); // Debug log
     displayUploadedFiles();
     updateUploadArea();
 }
@@ -190,16 +199,16 @@ function updatePreview() {
 
 function generateSampleQuestions(types) {
     const samples = {
-        character: "Who is the main character in this story?",
-        setting: "Where does the story take place?",
-        action: "What happened after the character made their decision?",
-        causal: "Why did the character choose this particular course of action?",
-        outcome: "How was the conflict resolved at the end?",
-        feeling: "How did the protagonist feel about the outcome?",
-        prediction: "What do you think will happen next?",
-        analytical: "What themes are explored in this text?",
-        factual: "What are the key facts presented in the document?",
-        comparative: "How does this approach compare to alternative methods?"
+        "character (who, how)": "Who is the main character in this story?",
+        "setting (where, when)": "Where does the story take place?",
+        "action (what happened next)": "What happened after the character made their decision?",
+        "causal (why did this happen)": "Why did the character choose this particular course of action?",
+        "outcome (what happened in the end)": "How was the conflict resolved at the end?",
+        "feeling (how did the character feel)": "How did the protagonist feel about the outcome?",
+        "prediction (simple, relatable predictions)": "What do you think will happen next?",
+        "analytical (critical thinking)": "What themes are explored in this text?",
+        "factual (knowledge recall)": "What are the key facts presented in the document?",
+        "comparative (compare and contrast)": "How does this approach compare to alternative methods?"
     };
     
     return types.map(type => samples[type] || "Sample question for " + type);
@@ -250,6 +259,10 @@ async function handleGenerate() {
         
         formData.append('config', JSON.stringify(config));
         
+        console.log('Selected question types:', selectedTypes); // Debug log
+        console.log('difficulty level:', difficultySlider.value); // Debug log
+        console.log('Custom instructions:', customInstructions.value); // Debug log
+
         // Call the backend API
         const response = await fetch('https://celarai-demo.onrender.com/process', {
             method: 'POST',

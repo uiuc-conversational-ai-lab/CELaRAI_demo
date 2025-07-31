@@ -139,7 +139,7 @@ def process_file():
 
     # Write the configuration file with custom instructions
     write_config(
-        additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 5): {difficulty}.\nCustom instructions: {custom_instructions}"
+        additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 10; 1 = Elementary; 5 = Undergraduate; 10 = Expert): {difficulty}.\nCustom instructions: {custom_instructions}"
     )
 
     try:
