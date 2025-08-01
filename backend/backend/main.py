@@ -142,9 +142,18 @@ def process_file():
             return jsonify({'error': 'No valid files to process'}), 400
 
         # Write the configuration file with custom instructions
-        write_config(
-            additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 10; 1 = Elementary; 5 = Undergraduate; 10 = Expert): {difficulty}.\nCustom instructions: {custom_instructions}"
-        )
+        if difficulty == 1:
+            difficulty_description = "Please do not use difficult words or concepts. Make sure the difficulty is suitable for grade-2 student. Try to ask 4-or-5-word simple questions."
+        else:
+            difficulty_description = ""
+        if difficulty_description:
+            write_config(
+                additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 10; 1 = Elementary; 5 = Undergraduate; 10 = Expert): {difficulty}.\nDifficulty description: {difficulty_description}\nCustom instructions: {custom_instructions}"
+            )
+        else:
+            write_config(
+                additional_instructions=f"Question types: {', '.join(question_types)}.\nDifficulty (out of 10; 1 = Elementary; 5 = Undergraduate; 10 = Expert): {difficulty}.\nCustom instructions: {custom_instructions}"
+            )
 
         try:
             # Run the processing script
