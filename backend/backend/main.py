@@ -113,7 +113,7 @@ def process_file():
     # Extract configuration parameters
     question_types = config.get('questionTypes', [])
     difficulty = config.get('difficulty', 5)
-    custom_instructions = config.get('customInstructions', 'Generate questions to test an undergraduate student')
+    custom_instructions = config.get('customInstructions', 'Generate questions to test the corresponding student level')
     
     with process_lock:
         # Prepare data directory
