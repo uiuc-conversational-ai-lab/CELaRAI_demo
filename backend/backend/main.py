@@ -143,7 +143,7 @@ def process_file():
 
         # Write the configuration file with custom instructions
         if difficulty == 1:
-            difficulty_description = "Please do not use difficult words or concepts. Make sure the difficulty is suitable for grade-2 student. Try to ask 4-or-5-word simple questions."
+            difficulty_description = "Please do not use difficult words or concepts. Make sure the difficulty is suitable for grade-2 student. Try to ask 4-or-5-word simple questions only."
         else:
             difficulty_description = ""
         if difficulty_description:
